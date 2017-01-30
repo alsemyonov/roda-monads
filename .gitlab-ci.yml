@@ -1,0 +1,71 @@
+# See documentation at https://docs.gitlab.com/ee/ci/yaml/README.html
+variables:
+  CI_REGISTRY_IMAGE_CURRENT: $CI_REGISTRY_IMAGE:$CI_BUILD_REF_NAME
+  CI_REGISTRY_IMAGE_LATEST: $CI_REGISTRY_IMAGE:latest
+  CI_REGISTRY_IMAGE_STABLE: $CI_REGISTRY_IMAGE:stable
+
+.docker_build: &docker
+  image: docker:latest
+  services:
+  - docker:dind
+  before_script:
+  - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+
+.ruby_build: &ruby
+  image: $CI_REGISTRY_IMAGE_CURRENT
+  # Cache gems in between builds
+  cache:
+    paths:
+    - /cache
+  # This is a basic example for a gem or script which doesn't use
+  # services such as redis or postgres
+  before_script:
+  - bundle install -j $(nproc) --path=/vendor/bundle # (Re)Bundle dependencies
+
+.release_docker_image: &release_docker_image
+  <<: *docker
+  stage: deploy
+  script:
+  - echo "Releasing ${$TARGET_IMAGE} from $CI_REGISTRY_IMAGE_CURRENT"
+  - docker pull $CI_REGISTRY_IMAGE_CURRENT
+  - docker tag $CI_REGISTRY_IMAGE_CURRENT ${$TARGET_IMAGE}
+  - docker push ${$TARGET_IMAGE}
+
+build:
+  <<: *docker
+  stage: build
+  script:
+  - echo "Building ${CI_REGISTRY_IMAGE_CURRENT}"
+  - docker build --pull -t $CI_REGISTRY_IMAGE_CURRENT .
+  - docker push $CI_REGISTRY_IMAGE_CURRENT
+
+style:
+  <<: *ruby
+  script: bin/rubocop
+  artifacts:
+    paths:
+    - doc/rubocop.html
+    - tmp/ci
+
+specification:
+  <<: *ruby
+  script: bin/rake spec
+  artifacts:
+    paths:
+    - doc/spec.html
+    - coverage
+    - tmp/ci
+
+documentation:
+  <<: *ruby
+  script: bin/rake doc
+  artifacts:
+    paths:
+    - rdoc
+
+gem:
+  <<: *ruby
+  script: bin/rake build
+  artifacts:
+    paths:
+    - pkg

@@ -1,0 +1,18 @@
+AllCops:
+  TargetRubyVersion: 2.4
+  DefaultFormatter: fuubar
+  DisplayCopNames: true
+  ExtraDetails: true
+  Exclude:
+  - spec/**/*.rb
+  - vendor/**/*.rb
+
+Metrics/BlockLength:
+  Exclude:
+  - rakelib/**/*.rb
+  - spec/**/*.rb
+  - vendor/**/*.rb
+
+# It is 2017, UTF time!
+Style/AsciiComments:
+  Enabled: false
