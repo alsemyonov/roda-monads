@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
 
   spec.summary = 'Roda matchers for DRY::Monads'
   spec.description = 'Reuse business logic operations in Roda'
-  spec.homepage = 'http://alsemyonov.gitlab.com/pages/'
+  spec.homepage = 'http://alsemyonov.gitlab.com/roda-monads/'
   spec.license = 'MIT'
 
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
@@ -29,8 +29,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'bundler-audit', '~> 0.5.0'
   spec.add_development_dependency 'rack-test', '~> 0.6.3'
   spec.add_development_dependency 'rake', '~> 12.0'
-  spec.add_development_dependency 'rspec', '~> 3.5'
-  spec.add_development_dependency 'rspec-its', '~> 1.2.0'
+  spec.add_development_dependency 'rspec-roda', '~> 0.1.0'
   spec.add_development_dependency 'rubocop', '~> 0.47.0'
   spec.add_development_dependency 'simplecov', '~> 0.12.0'
   spec.add_development_dependency 'yard', '~> 0.9.5'
