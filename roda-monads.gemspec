@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_runtime_dependency 'roda', '~> 2.21.0'
+  spec.add_runtime_dependency 'roda', '>= 2.21'
   spec.add_runtime_dependency 'dry-monads', '~> 0.2.1'
 
   spec.add_development_dependency 'bundler', '~> 1.13'
@@ -30,7 +30,9 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rack-test', '~> 0.6.3'
   spec.add_development_dependency 'rake', '~> 12.0'
   spec.add_development_dependency 'rspec-roda', '~> 0.1.0'
-  spec.add_development_dependency 'rubocop', '~> 0.47.0'
+  spec.add_development_dependency 'rspec', '~> 3.5'
+  spec.add_development_dependency 'rspec-its', '~> 1.2.0'
+  spec.add_development_dependency 'rubocop', '~> 0.47'
   spec.add_development_dependency 'simplecov', '~> 0.12.0'
   spec.add_development_dependency 'yard', '~> 0.9.5'
 end
