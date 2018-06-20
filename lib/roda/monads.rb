@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'roda/monads/version'
 require 'roda'
 require 'roda/plugins/monads'
