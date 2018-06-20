@@ -6,8 +6,8 @@ require 'dry-monads'
 class Roda
   # Module containing `Roda` plugins.
   module RodaPlugins
-    # Makes `Roda` understand `Dry::Monads::Either` monad and provide results
-    # based on `Right` or `Left` monad handler.
+    # Makes `Roda` understand `Dry::Monads::Result` monad and provide results
+    # based on `Success` or `Failure` monad handler.
     #
     # @see Monads::RequestMethods
     # @see Monads::InstanceMethods
@@ -16,17 +16,17 @@ class Roda
     #   plugin :monads
     #   route do |r|
     #     r.on '/right' do
-    #       Right('Alright!')
+    #       Success('Alright!')
     #     end
     #     r.on '/left' do
-    #       Left('Wrong!')
+    #       Failure('Wrong!')
     #     end
     #     r.on '/rack' do
     #       r.on '/right' do
-    #         Right([:ok, {}, ['Alright!']])
+    #         Success([:ok, {}, ['Alright!']])
     #       end
     #       r.on '/left' do
-    #         Left('Wrong!')
+    #         Failure('Wrong!')
     #       end
     #     end
     #   end
@@ -38,11 +38,11 @@ class Roda
         app.plugin :symbol_status
       end
 
-      # Extends `app` with `Dry::Monads::Either::Mixin` to create monads easily
+      # Extends `app` with `Dry::Monads::Result::Mixin` to create monads easily
       # @param [Roda] app
       def self.configure(app, *)
-        app.extend Dry::Monads::Either::Mixin
-        app.include Dry::Monads::Either::Mixin
+        app.extend Dry::Monads::Result::Mixin
+        app.include Dry::Monads::Result::Mixin
         app.either_matcher(:right,
                            aliases: [:value]) { |either| match_right(either) }
         app.either_matcher(:left,
@@ -66,8 +66,8 @@ class Roda
       end
 
       # Extends {Roda::RodaRequest#block_result}’s with an ability to respond to
-      # `Dry::Monads::Either` or compatible object (that responds to
-      # `#to_either` method, returning `Dry::Monads::Either`).
+      # `Dry::Monads::Result` or compatible object (that responds to
+      # `#to_either` method, returning `Dry::Monads::Result`).
       module RequestMethods
         # Handle match block return values.  By default, if a string is given
         # and the response is empty, use the string as the response body.
@@ -78,7 +78,7 @@ class Roda
 
         private
 
-        # @param [Dry::Monads::Either, #to_either] either
+        # @param [Dry::Monads::Result, #to_either] either
         def match_either(either)
           either = either.to_either if respond_to?(:to_either)
           matcher = if rack_either?(either)
@@ -91,31 +91,32 @@ class Roda
           instance_exec(either, &roda_class.either_matcher(matcher))
         end
 
-        # @param [Dry::Monads::Either::Right] either
+        # @param [Dry::Monads::Result::Success] either
         def match_right(either)
           return false unless either.right?
-          populate_body(either.value)
+          populate_body(either.success)
           true
         end
 
-        # @param [Dry::Monads::Either::Left] either
+        # @param [Dry::Monads::Result::Failure] either
         def match_left(either)
           return false unless either.left?
-          response.status, body = either.value
+          response.status, body = either.failure
           populate_body(body)
           true
         end
 
         def match_rack_either(either)
-          response.status, headers, body = either.value
+          response.status, headers, body = either.value_or(&:itself)
           headers.each { |header, value| response.headers[header] = value }
           populate_body(body)
           true
         end
 
-        # @param [Dry::Monads::Either] either
+        # @param [Dry::Monads::Result] either
         def rack_either?(either)
-          either.value.is_a?(Array) && either.value.size == 3
+          value = either.value_or(&:itself)
+          value.is_a?(Array) && value.size == 3
         end
 
         # @param [String, Object] body
@@ -123,7 +124,7 @@ class Roda
           response.write block_result_body(body) if response.empty?
         end
 
-        # @param [Dry::Monads::Either, #to_either] either
+        # @param [Dry::Monads::Result, #to_either] either
         # @return [void]
         def respond_with_either(either)
           instance_exec either, &roda_class.either_matcher(:either)

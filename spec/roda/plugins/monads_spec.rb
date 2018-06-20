@@ -2,15 +2,15 @@
 
 RSpec.describe Roda::RodaPlugins::Monads, roda: :plugin, name: :monads do
   route do |r|
-    r.on('value') { Right('Alright') }
-    r.on('status') { Left(:unauthorized) }
+    r.on('value') { Success('Alright') }
+    r.on('status') { Failure(:unauthorized) }
     r.on 'rack' do
       r.on 'symbol' do
-        r.on('right') { Right([:ok, {}, 'OK']) }
-        r.on('left') { Left([:found, { 'Location' => '/rack_right' }, nil]) }
+        r.on('right') { Success([:ok, {}, 'OK']) }
+        r.on('left') { Failure([:found, { 'Location' => '/rack_right' }, nil]) }
       end
-      r.on('right') { Right([200, {}, 'OK']) }
-      r.on('left') { Left([:unauthorized, {}, nil]) }
+      r.on('right') { Success([200, {}, 'OK']) }
+      r.on('left') { Failure([:unauthorized, {}, nil]) }
     end
     r.on('neither') { 'neither' }
   end
