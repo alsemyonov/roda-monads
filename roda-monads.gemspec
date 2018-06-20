@@ -30,8 +30,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rack-test', '~> 0.6.3'
   spec.add_development_dependency 'rake', '~> 12.0'
   spec.add_development_dependency 'rspec-roda', '~> 0.1.0'
-  spec.add_development_dependency 'rspec', '~> 3.5'
-  spec.add_development_dependency 'rspec-its', '~> 1.2.0'
   spec.add_development_dependency 'rubocop', '~> 0.57'
   spec.add_development_dependency 'simplecov', '~> 0.12.0'
   spec.add_development_dependency 'yard', '~> 0.9.5'
